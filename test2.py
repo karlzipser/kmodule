@@ -26,9 +26,9 @@ ctr=0
 for q in [x,x0,x1,x2,x3]:
     sh(q,ctr)
     ctr+=1
-sh(x+x2+x3,'x+x2')
+sh(x+x2+x3,'x+x2+x3')
 
-
+cm(r=1)
 
 
 

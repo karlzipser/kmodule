@@ -38,7 +38,9 @@ class Fire_with_Attention(nn.Module):
         return x
 
 
-
+if False:
+    a=torch.rand(2,3,5,5)
+    b=a.view(a.size()[0],-1).size()
 
 if __name__=='__main__':
 
