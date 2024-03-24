@@ -43,27 +43,6 @@ def conv2d(
 
 
 
-def fire_module(
-    name,
-    x,
-    squeeze_planes,
-    expand1x1_planes,
-    expand3x3_planes,
-    hide=False,
-    mdic=None,
-):
-    return create_module(
-        name=name,
-        type_='fire',
-        x=x,
-        squeeze_planes=squeeze_planes,
-        expand1x1_planes=expand1x1_planes,
-        expand3x3_planes=expand3x3_planes,
-        mdic=mdic,
-        hide=hide,
-    )
-
-
 
 def maxpool(
     name,
@@ -83,6 +62,13 @@ def maxpool(
         mdic=mdic,
     )
 
+
+def identity(x,*args,**kwargs):
+    return create_module(
+        name=name,
+        type_='identity',
+        x=x,
+    )    
 
 
 def upsample(
@@ -106,8 +92,31 @@ def upsample(
     )
 
 
+def linear():
+    pass
 
+def identity():
+    pass
 
+def fire_module(
+    name,
+    x,
+    squeeze_planes,
+    expand1x1_planes,
+    expand3x3_planes,
+    hide=False,
+    mdic=None,
+):
+    return create_module(
+        name=name,
+        type_='fire',
+        x=x,
+        squeeze_planes=squeeze_planes,
+        expand1x1_planes=expand1x1_planes,
+        expand3x3_planes=expand3x3_planes,
+        mdic=mdic,
+        hide=hide,
+    )
 
 
 
@@ -135,6 +144,8 @@ def create_module(
     image_height=0,
     image_width=0,
     mode='',
+    in_features=0,
+    out_features=0,
 ):
     assert len(x.size())==4
     in_channels=x.size()[1]
@@ -176,6 +187,16 @@ def create_module(
             )
         elif type_=='upsample':
             mdic[name]=nn.Upsample(size=(image_height,image_width),mode=mode)
+        elif type_=='identity':
+            mdic[name]=nn.Identity()
+        elif type_=='linear':
+            mdic[name]=nn.Linear(
+                in_features=in_features,
+                out_features=out_features,
+                bias=bias,
+                device=device,
+                dtype=dtype,
+            )
         else:
             assert False     
     #
@@ -231,6 +252,21 @@ def create_module(
 
 
 
+tensor_dictionary={}
+def describe_tensor(x,name,type_='',tab='',tensor_dictionary=tensor_dictionary):
+    x_size=shape_from_tensor(x)
+    k=d2s(name,type,x_size)
+    if k not in tensor_dictionary:
+        print(
+            d2s(
+                tab+type_,
+                name+' --',
+                x_size,
+                dp(x_size[1]*x_size[2]*x_size[3]/1000.,1),
+                '\bk',
+        ))
+        tensor_dictionary[k]=True
+    
 
 
 class Fire(nn.Module):
@@ -266,6 +302,8 @@ if __name__=='__main__':
     w=256
     n=100
     x=torch.from_numpy(na(rndn(bs,nin,h,w))).float()
+    describe_tensor(x,'x')
+    describe_tensor(x,'x')
     for j in range(4):
 
         t0=time.time()
@@ -291,5 +329,17 @@ if __name__=='__main__':
     sh(w,'w')
     sh(z,'z',r=1)
 
-    
+"""
+
+-Feed-forward from input to x
+
+-Attention, large RFs, contracted, then upscaped to multiply with x
+
+-Multi-scape, increase and decrease resolution of input, send through feed-forward
+and attention, then resize and add together.
+
+-gather skip connections, blend them together at end with concat and 1x1 convolution
+
+"""
+
 #EOF
