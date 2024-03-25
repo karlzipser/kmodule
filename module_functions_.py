@@ -240,7 +240,7 @@ def create_module(
 
     #######################
     # show 
-    if True:#show:
+    if show:
         if name+'_activation' in mdic:
             activation_str=str(activation).split('(')[0]
         else:
@@ -251,7 +251,7 @@ def create_module(
             batch_norm_str=''
         x_size=shape_from_tensor(x)
         y_size=shape_from_tensor(y)
-        if 'input' in name.lower() or 'output' in name.lower():
+        if 'input' in name.lower():# or 'output' in name.lower():
             tab=''
             #x_size=str(x_size)+'\n\t'
         else:
@@ -266,7 +266,6 @@ def create_module(
                 y_size,
                 batch_norm_str,
                 activation_str,
-                mode,
                 dp(y_size[1]*y_size[2]*y_size[3]/1000.,1),
                 '\bk',
         ))
@@ -281,7 +280,7 @@ tensor_dictionary={}
 def describe_tensor(x,name,type_='',tab='',tensor_dictionary=tensor_dictionary):
     x_size=shape_from_tensor(x)
     k=d2s(name,type,x_size)
-    if True:#k not in tensor_dictionary:
+    if k not in tensor_dictionary:
         print(
             d2s(
                 tab+type_,
@@ -294,6 +293,23 @@ def describe_tensor(x,name,type_='',tab='',tensor_dictionary=tensor_dictionary):
     
 
 
+class _Fire(nn.Module):
+    def __init__(
+        _,
+        squeeze_planes,
+        expand1x1_planes,
+        expand3x3_planes,
+    ):
+        super(Fire,_).__init__()
+        _.mdic=nn.ModuleDict()
+        _.squeeze_planes=squeeze_planes
+        _.expand1x1_planes=expand1x1_planes
+        _.expand3x3_planes=expand3x3_planes
+    def forward(_,x):
+        squeeze=    conv2d('squeeze',x,_.squeeze_planes,kernel_size=1,mdic=_.mdic,hide=True)
+        expand1x1=  conv2d('expand1x1',squeeze,_.expand1x1_planes,kernel_size=1,mdic=_.mdic,hide=True)
+        expand3x3=  conv2d('expand3x3',squeeze,_.expand3x3_planes,kernel_size=3,padding=1,mdic=_.mdic,hide=True)
+        return torch.cat([expand1x1,expand3x3],1)
 
 
 
@@ -327,5 +343,58 @@ class Fire(nn.Module):
 
 # batch channel hight width
 
+
+
+if __name__=='__main__':
+
+    bs=1
+    nin=3
+    nch=8 
+    mdic=nn.ModuleDict()
+    h=128
+    w=256
+    n=100
+    x=torch.from_numpy(na(rndn(bs,nin,h,w))).float()
+    describe_tensor(x,'x')
+    describe_tensor(x,'x')
+    for j in range(4):
+
+        t0=time.time()
+        for i in range(n):
+            y=conv2d('input 3x3',x,out_channels=nin,kernel_size=3,stride=2,padding=1,mdic=mdic)
+        t1=time.time()-t0
+        print('conv2d',t1/n)
+
+        t0=time.time()
+        for i in range(n):
+            z=maxpool('input2 3x3',x,kernel_size=3,stride=2,mdic=mdic)
+        t1=time.time()-t0
+        print('maxppol',t1/n)
+
+        t0=time.time()
+        for i in range(n):
+            w=upsample('up',x,image_height=h//2,image_width=w//2,mdic=mdic)
+        t1=time.time()-t0
+        print('upsample',t1/n)
+
+    sh(x,'x')
+    sh(y,'y')
+    sh(w,'w')
+    sh(z,'z',r=0)
+
+"""
+
+-Feed-forward from input to x
+
+-Attention, large RFs, contracted, then upscaped to multiply with x
+
+-Multi-scape, increase and decrease resolution of input, send through feed-forward
+and attention, then resize and add together.
+
+-gather skip connections, blend them together at end with concat and 1x1 convolution
+
+"""
+
+pass
 
 #EOF

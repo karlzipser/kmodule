@@ -33,5 +33,26 @@ cm(r=1)
 
 
 
+    if False:
+        xs=[]
+        h_final,w_final=69,131
+        x_base=torch.zeros(1,16,h_final,w_final)
+        widths=[512,256,128,64,32]
+        for w in widths:
+            cg(w)
+            x=torch.from_numpy(na(rndn(bs,nin,w//2,w))).float()
+            #x=conv2d('input 3x3',x,out_channels=nch*2,kernel_size=3,stride=2,padding=1,mdic=mdic)
+            x=feedforward_block(x)
+            x_attention=attention_block(x)
+            #describe_tensor(x_attention,'x_attention')
+            #describe_tensor(x,'x')
+            x=torch.mul(x,x_attention)
+            x=upsample('output final',x,image_height=h_final,image_width=w_final,mode='bilinear',mdic=mdic)
+            x_base+=x
+            print(2*'\n')
+        x_base/=len(widths)
+        describe_tensor(x_base,'end')
+
+
     
 #EOF
