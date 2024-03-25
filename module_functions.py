@@ -97,7 +97,7 @@ def upsample(
 def linear(
     name,
     x,
-    in_features=0,
+    in_features=0, # should this be computed from x, as with conv2d?
     out_features=0,
     bias=True,
     device=None,
