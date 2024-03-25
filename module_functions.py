@@ -313,7 +313,6 @@ class Fire(nn.Module):
         super(Fire,_).__init__()
         packdict(_,locals())
     def forward(_,x):
-        
         squeeze=    conv2d('fire input squeeze',x,_.squeeze_planes,kernel_size=1,mdic=_.mdic,show=_.show)
         expand1x1=  conv2d('fire expand1x1',squeeze,_.expand1x1_planes,kernel_size=1,mdic=_.mdic,show=_.show)
         expand3x3=  conv2d('fire expand3x3',squeeze,_.expand3x3_planes,kernel_size=3,padding=1,mdic=_.mdic,show=_.show)
