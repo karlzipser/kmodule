@@ -13,8 +13,10 @@ class Feedforward_Block(nn.Module):
         super(Feedforward_Block,_).__init__()
         packdict(_,locals())
     def forward(_,x):
+        describe_input(x,_,show,2)
         x=fire_module('feedforward A',x,_.nch,_.nch,_.nch,mdic=_.mdic,show=show)
         x=fire_module('feedforward B',x,_.nch,_.nch,_.nch,mdic=_.mdic,show=show)
+        describe_output(x,_,show,2)
         return x
 
 
@@ -29,12 +31,14 @@ class Attention_Block(nn.Module):
         super(Attention_Block,_).__init__()
         packdict(_,locals())
     def forward(_,x):
+        describe_input(x,_,show,2)
         h=image_height=x.size()[-2]
         w=image_width=x.size()[-1]
         x_in=x
         x=maxpool('attention input',x_in,kernel_size=7,stride=3,mdic=_.mdic,show=show)
         x=conv2d('attention 7x7',x,out_channels=nch*2,kernel_size=7,stride=3,padding=3,mdic=_.mdic,activation=nn.Sigmoid(),show=show)
         x=upsample(d2n('attention u1 (',h,'x',w,')'),x,image_height=h,image_width=w,mode='bilinear',mdic=_.mdic,show=show)
+        describe_output(x,_,show,2)
         return x
 
 
@@ -53,6 +57,8 @@ class Multiscale_Block(nn.Module):
         super(Multiscale_Block,_).__init__()
         packdict(_,locals())
     def forward(_,x):
+        describe_input(x,_,show,1)
+        #describe_tensor(x,'** Multiscale_Block',show=show)
         bs=x.size()[0]
         nc=x.size()[1]
         x_base=torch.zeros(bs,nc,_.h_final,_.w_final)
@@ -83,9 +89,9 @@ class Multiscale_Block(nn.Module):
             x_base+=x
             #print(2*'\n')
         x_base/=len(_.sizes)
-        return x_base
-
-
+        x=x_base
+        describe_output(x,_,show,1)
+        return x
 
 
 class Skip_Connection_Block(nn.Module):
@@ -102,7 +108,7 @@ class Skip_Connection_Block(nn.Module):
         super(Skip_Connection_Block,_).__init__()
         packdict(_,locals())
     def forward(_,x):
-
+        describe_input(x,_,show)
         x=_.block(x)
         
         xs=[]
@@ -119,11 +125,9 @@ class Skip_Connection_Block(nn.Module):
                     show=show,
                 )
             )     
-        #for y in xs:
-        #    print(y.size())
         x=torch.cat(xs,axis=1)
         x=conv2d('1x1 skip',x,_.n_out_channels,kernel_size=1,mdic=_.mdic,show=show,)
-        
+        describe_output(x,_,show)
         return x
 
 
@@ -142,7 +146,8 @@ and attention, then resize and add together.
 
 if __name__=='__main__':
     print(10*'\n')
-    show='always'
+    #show='never'
+    show=straskys("Feedforward_Block,Attention_Block,Multiscale_Block,Skip_Connection_Block")
     bs=1
     nin=16
     nch=8 

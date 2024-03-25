@@ -288,6 +288,21 @@ def describe_tensor(x,name,type_='',tab='',show='once',tensor_dictionary=tensor_
         ))
         tensor_dictionary[k]=True
     
+def describe_input(x,_,show,tabs=0):
+    if type(show) is list:
+        if _.__class__.__name__ in show:
+            show='always'
+        else:
+            show='never'
+    describe_tensor(x,d2s(tabs*'\t'+'[***',_.__class__.__name__,'INPUT'),show=show)
+
+def describe_output(x,_,show,tabs=0):
+    if type(show) is list:
+        if _.__class__.__name__ in show:
+            show='always'
+        else:
+            show='never'
+    describe_tensor(x,d2s(tabs*'\t'+'. . .',_.__class__.__name__,'OUTPUT ***]'),show=show)
 
 
 
