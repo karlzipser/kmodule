@@ -7,13 +7,14 @@ class Feedforward_Block(nn.Module):
     def __init__(
         _,
         nch,
+        show='once',
         mdic=None,
     ):
         super(Feedforward_Block,_).__init__()
         packdict(_,locals())
     def forward(_,x):
-        x=fire_module('feedforward A',x,_.nch,_.nch,_.nch,mdic=_.mdic,hide=False)
-        x=fire_module('feedforward B',x,_.nch,_.nch,_.nch,mdic=_.mdic,hide=False)
+        x=fire_module('feedforward A',x,_.nch,_.nch,_.nch,mdic=_.mdic,show=show)
+        x=fire_module('feedforward B',x,_.nch,_.nch,_.nch,mdic=_.mdic,show=show)
         return x
 
 
@@ -22,6 +23,7 @@ class Attention_Block(nn.Module):
     def __init__(
         _,
         nch,
+        show='once',
         mdic=None,
     ):
         super(Attention_Block,_).__init__()
@@ -30,9 +32,9 @@ class Attention_Block(nn.Module):
         h=image_height=x.size()[-2]
         w=image_width=x.size()[-1]
         x_in=x
-        x=maxpool('attention input',x_in,kernel_size=7,stride=3,mdic=_.mdic)
-        x=conv2d('attention 7x7',x,out_channels=nch*2,kernel_size=7,stride=3,padding=3,mdic=_.mdic,activation=nn.Sigmoid())
-        x=upsample(d2n('attention u1 (',h,'x',w,')'),x,image_height=h,image_width=w,mode='bilinear',mdic=_.mdic)
+        x=maxpool('attention input',x_in,kernel_size=7,stride=3,mdic=_.mdic,show=show)
+        x=conv2d('attention 7x7',x,out_channels=nch*2,kernel_size=7,stride=3,padding=3,mdic=_.mdic,activation=nn.Sigmoid(),show=show)
+        x=upsample(d2n('attention u1 (',h,'x',w,')'),x,image_height=h,image_width=w,mode='bilinear',mdic=_.mdic,show=show)
         return x
 
 
@@ -45,6 +47,7 @@ class Multiscale_Block(nn.Module):
         h_final=0,
         w_final=0,
         sizes=[],
+        show='once',
         mdic=None,
     ):
         super(Multiscale_Block,_).__init__()
@@ -54,7 +57,7 @@ class Multiscale_Block(nn.Module):
         nc=x.size()[1]
         x_base=torch.zeros(bs,nc,_.h_final,_.w_final)
         for h,w in _.sizes:
-            cg(h,w,r=0)
+            #cg(h,w,r=0)
             x=upsample(
                 d2n('u3 (',h,'x',w,')'),
                 x,
@@ -62,6 +65,7 @@ class Multiscale_Block(nn.Module):
                 image_width=w,
                 mode='bilinear',
                 mdic=_.mdic,
+                show=show,
             )
             x=feedforward_block(x)
             x_attention=attention_block(x)
@@ -73,10 +77,11 @@ class Multiscale_Block(nn.Module):
                 image_width=_.w_final,
                 mode='bilinear',
                 mdic=mdic,
+                show=show,
             )
-            print(x_base.size(),x.size())
+            #print(x_base.size(),x.size())
             x_base+=x
-            print(2*'\n')
+            #print(2*'\n')
         x_base/=len(_.sizes)
         return x_base
 
@@ -92,6 +97,7 @@ class Skip_Connection_Block(nn.Module):
         w_final=0,
         n_out_channels=0,
         mdic=None,
+        show='once',
     ):
         super(Skip_Connection_Block,_).__init__()
         packdict(_,locals())
@@ -110,12 +116,13 @@ class Skip_Connection_Block(nn.Module):
                     image_width=_.w_final,
                     mode='bilinear',
                     mdic=mdic,
+                    show=show,
                 )
             )     
-        for y in xs:
-            print(y.size())
+        #for y in xs:
+        #    print(y.size())
         x=torch.cat(xs,axis=1)
-        x=conv2d('1x1 skip',x,_.n_out_channels,kernel_size=1,mdic=_.mdic,hide=False)
+        x=conv2d('1x1 skip',x,_.n_out_channels,kernel_size=1,mdic=_.mdic,show=show,)
         
         return x
 
@@ -135,19 +142,21 @@ and attention, then resize and add together.
 
 if __name__=='__main__':
     print(10*'\n')
+    show='always'
     bs=1
     nin=16
     nch=8 
     mdic=nn.ModuleDict()
-    feedforward_block=Feedforward_Block(nch,mdic)
-    attention_block=Attention_Block(nch,mdic)
+    feedforward_block=Feedforward_Block(nch,mdic=mdic,show=show)
+    attention_block=Attention_Block(nch,mdic=mdic,show=show)
     multiscale_block=Multiscale_Block(
         feedforward_block,
         attention_block,
         67,
         133,
         [(256,512),(128,256),(64,128),(32,64),(16,32)],
-        mdic,
+        mdic=mdic,
+        show=show,
     )
     skip_connection_block=Skip_Connection_Block(
         block=multiscale_block,
@@ -156,6 +165,7 @@ if __name__=='__main__':
         w_final=147,
         n_out_channels=7,
         mdic=mdic,
+        show=show,
     )
 
 
@@ -163,7 +173,7 @@ if __name__=='__main__':
     x=torch.from_numpy(na(rndn(bs,nin,128,256))).float()
     #x=multiscale_block(x)
     x=skip_connection_block(x)
-    describe_tensor(x,'end')
+    describe_tensor(x,'end',show=show)
 
 
 #EOF
