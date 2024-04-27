@@ -313,11 +313,7 @@ class _Fire(nn.Module):
 
 
 
-def packdict(_,locals_):
-    _._initial_keys=kys(_.__dict__)
-    for k in locals_:
-        if k[0]!='_':
-            _.__dict__[k]=locals_[k]
+
 
 
 

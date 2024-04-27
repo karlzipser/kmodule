@@ -36,7 +36,7 @@ class Attention_Block(nn.Module):
         w=image_width=x.size()[-1]
         x_in=x
         x=maxpool('attention input',x_in,kernel_size=7,stride=3,mdic=_.mdic,show=show)
-        x=conv2d('attention 7x7',x,out_channels=nch*2,kernel_size=7,stride=3,padding=3,mdic=_.mdic,activation=nn.Sigmoid(),show=show)
+        x=conv2d('attention 7x7',x,out_channels=nch*2,kernel_size=7,stride=3,padding=3,mdic=_.mdic,activation=nn.Softmax(),show=show)
         x=upsample(d2n('attention u1 (',h,'x',w,')'),x,image_height=h,image_width=w,mode='bilinear',mdic=_.mdic,show=show)
         describe_output(x,_,show,2)
         return x
