@@ -142,12 +142,15 @@ and attention, then resize and add together.
 -gather skip connections, blend them together at end with concat and 1x1 convolution
 """
 
-
-
 if __name__=='__main__':
     print(10*'\n')
     #show='never'
-    show=straskys("Feedforward_Block,Attention_Block,Multiscale_Block,Skip_Connection_Block")
+    show=straskys("""
+        Feedforward_Block
+        Attention_Block
+        Multiscale_Block
+        Skip_Connection_Block
+    """)
     bs=1
     nin=16
     nch=8 
@@ -155,13 +158,13 @@ if __name__=='__main__':
     feedforward_block=Feedforward_Block(nch,mdic=mdic,show=show)
     attention_block=Attention_Block(nch,mdic=mdic,show=show)
     multiscale_block=Multiscale_Block(
-        feedforward_block,
-        attention_block,
-        67,
-        133,
-        [(256,512),(128,256),(64,128),(32,64),(16,32)],
-        mdic=mdic,
+        feedforward_block=feedforward_block,
+        attention_block=attention_block,
+        h_final=67,
+        w_final=133,
+        sizes=[(256,512),(128,256),(64,128),(32,64),(16,32)],
         show=show,
+        mdic=mdic,
     )
     skip_connection_block=Skip_Connection_Block(
         block=multiscale_block,
