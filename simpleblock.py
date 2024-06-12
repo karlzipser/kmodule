@@ -12,6 +12,7 @@ class Simple_Block(nn.Module):
         super(Simple_Block,_).__init__()
         packdict(_,locals())
     def forward(_,x):
+        show=_.show
         describe_input(x,_,show,0)
         x=conv2d(
             'a',
@@ -77,7 +78,7 @@ class Simple_Block(nn.Module):
 
 if __name__=='__main__':
     print(10*'\n')
-    show='once'
+    _show='once'
     _show=straskys("""
         Simple_Block
     """)
@@ -85,11 +86,11 @@ if __name__=='__main__':
     nin=3
     nch=8 
     mdic=nn.ModuleDict()
-    simple_block=Simple_Block(nch,mdic=mdic,show=show)
+    simple_block=Simple_Block(nch,mdic=mdic,show=_show)
     xin=torch.from_numpy(na(rndn(bs,nin,128,128))).float()
     x=simple_block(xin)
-    describe_tensor(x,'end',show=show)
+    describe_tensor(x,'end',show=_show)
     x=simple_block(xin)
-    describe_tensor(x,'end',show=show)
+    describe_tensor(x,'end',show=_show)
 
 #EOF
