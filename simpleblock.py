@@ -1,4 +1,4 @@
-
+#,a
 from kmodule.module_functions import *
 
 
@@ -12,7 +12,7 @@ class Simple_Block(nn.Module):
         super(Simple_Block,_).__init__()
         packdict(_,locals())
     def forward(_,x):
-        show=_.show
+        #show=_.show
         describe_input(x,_,show,0)
         x=conv2d(
             'a',
@@ -77,20 +77,21 @@ class Simple_Block(nn.Module):
 
 
 if __name__=='__main__':
-    print(10*'\n')
-    _show='once'
-    _show=straskys("""
+    #print(10*'\n')
+    show='once'
+    ___show=straskys("""
         Simple_Block
     """)
     bs=1
     nin=3
     nch=8 
     mdic=nn.ModuleDict()
-    simple_block=Simple_Block(nch,mdic=mdic,show=_show)
+    simple_block=Simple_Block(nch,mdic=mdic,show=show)
     xin=torch.from_numpy(na(rndn(bs,nin,128,128))).float()
     x=simple_block(xin)
-    describe_tensor(x,'end',show=_show)
-    x=simple_block(xin)
-    describe_tensor(x,'end',show=_show)
+    describe_tensor(x,'end',show=show)
+    #x=simple_block(xin)
+    #describe_tensor(x,'end',show=show)
 
 #EOF
+#,b
