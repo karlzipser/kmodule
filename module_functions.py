@@ -161,6 +161,7 @@ def create_module(
     show_now=False
     if show=='always':
         show_now=True
+    #cE(name,name in mdic)
     if name not in mdic:
         if show=='once':
             show_now=True

@@ -1,4 +1,7 @@
 #,a
+
+# exec(gcsp3(opjh('kmodule'),include_output=1,show_snippet=0));merge_snippets2(default_height=300);CA()
+
 from kmodule.module_functions import *
 
 
@@ -73,11 +76,9 @@ class Simple_Block(nn.Module):
         return x
 
 
-
-
-
 if __name__=='__main__':
-    #print(10*'\n')
+    if 'mdic' not in locals():
+        mdic=nn.ModuleDict()
     show='once'
     ___show=straskys("""
         Simple_Block
@@ -85,13 +86,14 @@ if __name__=='__main__':
     bs=1
     nin=3
     nch=8 
-    mdic=nn.ModuleDict()
+
     simple_block=Simple_Block(nch,mdic=mdic,show=show)
     xin=torch.from_numpy(na(rndn(bs,nin,128,128))).float()
-    x=simple_block(xin)
-    describe_tensor(x,'end',show=show)
-    #x=simple_block(xin)
-    #describe_tensor(x,'end',show=show)
+    describe_tensor(xin,'xin',show='always')
+    for i in range(4):
+        print('i=',i)
+        x=simple_block(xin)
+    describe_tensor(x,'xout',show='always')
 
 #EOF
 #,b
