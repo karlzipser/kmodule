@@ -1,3 +1,4 @@
+
 #,a
 
 # exec(gcsp3(opjh('kmodule'),include_output=1,show_snippet=0));merge_snippets2(default_height=300);CA()
@@ -94,6 +95,6 @@ if __name__=='__main__':
         print('i=',i)
         x=simple_block(xin)
     describe_tensor(x,'xout',show='always')
+#,b
 
 #EOF
-#,b
