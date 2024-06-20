@@ -54,7 +54,7 @@ class Simple_Block(nn.Module):
         x=conv2d(
             'd',
             x,
-            out_channels=64,
+            out_channels=10,
             kernel_size=4,
             stride=3,
             padding=2,
@@ -62,6 +62,7 @@ class Simple_Block(nn.Module):
             activation=nn.ReLU(True),
             show=show,
         )
+        """
         x=conv2d(
             'e',
             x,
@@ -73,6 +74,7 @@ class Simple_Block(nn.Module):
             activation=nn.ReLU(True),
             show=show,
         )
+        """
         describe_output(x,_,show,0)
         return x
 
@@ -89,7 +91,7 @@ if __name__=='__main__':
     nch=8 
 
     simple_block=Simple_Block(nch,mdic=mdic,show=show)
-    xin=torch.from_numpy(na(rndn(bs,nin,128,128))).float()
+    xin=torch.from_numpy(na(rndn(bs,nin,32,32))).float()
     describe_tensor(xin,'xin',show='always')
     for i in range(4):
         print('i=',i)
